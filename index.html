@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Travel packages</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@ a{color:inherit}
 .top a{text-decoration:none}.adm{font:400 .85rem 'Instrument Sans',sans-serif;color:var(--muted)}
 main{max-width:1100px;margin:0 auto;padding:0 5vw 64px}.narrow{max-width:760px}
 .hero{padding:56px 0 36px;max-width:720px}.hero h1{font-size:clamp(2.2rem,6vw,3.6rem);margin:0 0 14px}.hero p{color:var(--muted);font-size:1.1rem;margin:0}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:26px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(290px,100%),1fr));gap:26px}
 .card{background:#fff;border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex;flex-direction:column}
 .cover{display:block;aspect-ratio:4/3;background:linear-gradient(135deg,var(--teal),var(--ink)) center/cover}.cover.big{aspect-ratio:16/7;border-radius:6px;margin:28px 0 20px}
 .pad{padding:16px 20px 20px;display:flex;flex-direction:column;gap:6px;flex:1}.pad h2{font-size:1.35rem;margin:0}.pad h2 a{text-decoration:none}.pad p{margin:0}
@@ -33,6 +33,33 @@ input,textarea,select{display:block;width:100%;margin-top:4px;padding:9px 10px;b
 .pill{padding:2px 8px;border-radius:10px;background:var(--line);font-size:.8rem}.pill.published{background:#d3efe6;color:#0b5555}
 ul.l{padding:0;list-style:none;margin:0}ul.l li{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:4px 0}
 .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
+
+/* ---------- Responsive ---------- */
+html{-webkit-text-size-adjust:100%}
+h1,h2,h3,p,li,.stat b{overflow-wrap:anywhere}
+.top{gap:12px;padding-left:max(5vw,env(safe-area-inset-left));padding-right:max(5vw,env(safe-area-inset-right))}
+main{padding-left:max(5vw,env(safe-area-inset-left));padding-right:max(5vw,env(safe-area-inset-right))}
+.hd{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px 16px}.hd h1,.hd h2{margin:.5em 0}
+@media (min-width:1400px){main{max-width:1280px}.narrow{max-width:760px}body{font-size:17px}}
+@media (min-width:1900px){main{max-width:1500px}.narrow{max-width:760px}}
+@media (max-width:640px){
+ body{font-size:15.5px}
+ .hero{padding:32px 0 24px}.grid{gap:18px}
+ .cover.big{aspect-ratio:16/10;margin:18px 0 14px}
+ .pad .wa,.narrow .wa{align-self:stretch;text-align:center}
+ .detail{padding-bottom:96px}
+ .stick{position:fixed;left:0;right:0;bottom:0;z-index:5;padding:10px max(5vw,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(5vw,env(safe-area-inset-left));background:var(--paper);border-top:1px solid var(--line)}
+ .stick .wa{display:block;width:100%;margin:0}.stick:empty{display:none}
+ .stat b{font-size:1.4rem}
+ .bar{grid-template-columns:1fr auto;gap:2px 10px}.bar>:nth-child(1){grid-area:1/1}.bar>:nth-child(2){grid-area:2/1/3/3}.bar>:nth-child(3){grid-area:1/2}
+ .pt,.pt tbody{display:block}.pt tr:first-child{display:none}
+ .pt tr{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:12px 0;border-bottom:1px solid var(--line)}
+ .pt td{border:0;padding:0;white-space:normal}.pt td:nth-child(2){flex:1 1 140px;font-weight:600}
+ .pt td:nth-child(4)::before{content:'Order ';color:var(--muted)}
+ .pt td:last-child{flex-basis:100%;display:flex;flex-wrap:wrap;gap:8px}
+}
+@media (max-width:360px){.top{font-size:1rem}.hero h1{font-size:1.9rem}}
+@media (pointer:coarse){.btn.ghost{padding:10px 14px}input,textarea,select{min-height:44px}}
 </style></head><body>
 <header class="top"><a href="#/" id="brand">Travel packages</a><a href="#/admin" class="adm">Admin</a></header>
 <div id="app"><p class="empty" style="padding:24px 5vw">Loading…</p></div>
@@ -71,7 +98,7 @@ async function home(){
 async function detail(slug){
  const{data:p}=await sb.from('packages').select(PUB).eq('slug',slug).eq('status','published').maybeSingle();
  if(!p)return app.innerHTML='<main><p class="empty">This package isn’t available. <a href="#/">See all packages</a></p></main>';
- app.innerHTML=`<main class="narrow"><a href="#/">← All packages</a>${cover(p,'big')}<h1>${esc(p.title)}</h1><p class="meta">${esc(meta(p))}</p><p>${esc(p.summary)}</p>${waBtn(p)}
+ app.innerHTML=`<main class="narrow detail"><a href="#/">← All packages</a>${cover(p,'big')}<h1>${esc(p.title)}</h1><p class="meta">${esc(meta(p))}</p><p>${esc(p.summary)}</p><div class="stick">${waBtn(p)}</div>
  ${p.itinerary.length?`<h2>Itinerary</h2><ol class="days">${p.itinerary.map(d=>`<li><strong>${esc(d.title)}</strong><p>${esc(d.details)}</p></li>`).join('')}</ol>`:''}
  ${p.inclusions.length?`<h2>What’s included</h2><ul>${p.inclusions.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`:''}</main>`}
 
@@ -100,13 +127,13 @@ async function dash(){
   const k=c.utm_source||'direct';src[k]=(src[k]||0)+1;dev[c.device]=(dev[c.device]||0)+1});
  const top=[...pk].sort((a,b)=>st[b.id].c30-st[a.id].c30),max=Math.max(1,...top.map(p=>st[p.id].c30));
  const list=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<li>${esc(k)}<b>${v}</b></li>`).join('')||'<li>No data yet</li>';
- app.innerHTML=`<main><div style="display:flex;justify-content:space-between;align-items:center"><h1>Dashboard</h1><button class="btn ghost" onclick="logout()">Log out</button></div>
+ app.innerHTML=`<main><div class="hd"><h1>Dashboard</h1><button class="btn ghost" onclick="logout()">Log out</button></div>
  <div class="stats"><div class="stat"><b>${t7}</b>WhatsApp clicks, last 7 days</div><div class="stat"><b>${t30}</b>Clicks, last 30 days</div><div class="stat"><b>${t30?esc(top[0].title):'-'}</b>Most responses (30 days)</div></div>
  <h2>Responses by package</h2>${top.map(p=>`<div class="bar"><span>${esc(p.title)}</span><div><i style="width:${st[p.id].c30/max*100}%"></i><i class="s" style="width:${st[p.id].c7/max*100}%"></i></div><span>${st[p.id].c30} / ${st[p.id].c7}</span></div>`).join('')||'<p class="empty">No packages yet.</p>'}
  <p class="meta">Teal: 30 days. Orange: 7 days. A click means the visitor opened WhatsApp, not that they sent the message.</p>
  <div class="two"><div><h3>Traffic source</h3><ul class="l">${list(src)}</ul></div><div><h3>Device</h3><ul class="l">${list(dev)}</ul></div></div>
- <div style="display:flex;justify-content:space-between;align-items:center;margin-top:36px"><h2>Packages</h2><a class="btn" href="#/admin/edit/new">New package</a></div>
- <div class="tw"><table><tr><th>Ref</th><th>Title</th><th>Status</th><th>Order</th><th></th></tr>${pk.map(p=>`<tr><td>${esc(p.ref_code)}</td><td>${esc(p.title)}</td><td><span class="pill ${p.status}">${p.status}</span></td><td>${p.display_order}</td>
+ <div class="hd" style="margin-top:36px"><h2>Packages</h2><a class="btn" href="#/admin/edit/new">New package</a></div>
+ <div class="tw"><table class="pt"><tr><th>Ref</th><th>Title</th><th>Status</th><th>Order</th><th></th></tr>${pk.map(p=>`<tr><td>${esc(p.ref_code)}</td><td>${esc(p.title)}</td><td><span class="pill ${p.status}">${p.status}</span></td><td>${p.display_order}</td>
  <td><a class="btn ghost" href="#/admin/edit/${p.id}">Edit</a> <button class="btn ghost" onclick="togg('${p.id}','${p.status}')">${p.status==='published'?'Unpublish':'Publish'}</button> <button class="btn ghost" onclick="del('${p.id}')">Delete</button></td></tr>`).join('')}</table></div>
  <h2 style="margin-top:36px">Site settings</h2><form onsubmit="event.preventDefault();saveSet()"><div class="row"><label>WhatsApp number (country code, digits only)<input id="wan" placeholder="919876543210" value="${esc(S.wa)}"></label><label>Site name<input id="sn" value="${esc(S.name)}"></label></div><button class="btn">Save settings</button></form></main>`}
 
